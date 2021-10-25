@@ -2,6 +2,7 @@ import { Router } from "express";
 import { HttpError } from "../interfaces/http-error";
 import { IPermission } from "../interfaces/permission";
 import { addPermission } from "../services/permission.service";
+import { getRoles } from "../services/role.service";
 import { generateHttpResponse } from "../utils/utils";
 
 export const permissionRouter = Router();
