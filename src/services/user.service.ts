@@ -1,9 +1,14 @@
 import { HttpError } from "../interfaces/http-error";
-import { IUser, UserModel } from "../models/user.model";
+import { IUser } from "../interfaces/user";
+import { UserModel } from "../models/user.model";
 import { compareHash, hashedText, validateEmail } from "../utils/utils";
-import { generateToken, verifyToken } from "./token.service";
+import {
+  generateToken,
+  validateTokenAndGetUser,
+  verifyToken,
+} from "./token.service";
 
-const signUp = async (user: IUser): Promise<void> => {
+export const signUp = async (user: IUser): Promise<IUser> => {
   // Email and Password are required check
   if (!user.password) {
     throw new HttpError(400, "Password is required");
@@ -25,13 +30,17 @@ const signUp = async (user: IUser): Promise<void> => {
   // save user
   try {
     const doc = new UserModel(user);
-    await doc.save();
+    return await doc.save();
   } catch (error) {
+    console.log(error);
     throw new HttpError(500, "Failed to save to DB");
   }
 };
 
-const signIn = async (email: string, password: string): Promise<string> => {
+export const signIn = async (
+  email: string,
+  password: string
+): Promise<string> => {
   // Email and Password are required check
   if (!password) {
     throw new HttpError(400, "Password is required");
@@ -58,4 +67,14 @@ const signIn = async (email: string, password: string): Promise<string> => {
   return token;
 };
 
-export { signUp, signIn };
+/**
+ * Check if user has valid token
+ * Remove the toke from user's tokens if the token expired
+ * Check if user has valid permissions
+ */
+export const validateUser = async (
+  token: string,
+  permission: string
+): Promise<IUser> => {
+  return await validateTokenAndGetUser(token);
+};

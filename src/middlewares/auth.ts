@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { JsonWebTokenError } from "jsonwebtoken";
-import { IUser, UserModel } from "../models/user.model";
+import { UserModel } from "../models/user.model";
 import { verifyToken } from "../services/token.service";
 import { generateHttpResponse } from "../utils/utils";
 
@@ -34,7 +34,7 @@ export async function auth(req: Request, res: Response, next: any) {
     if (user.tokens.indexOf(token) === -1) {
       return res.status(401).json(generateHttpResponse(401, "Invalid Token"));
     }
-    req.body.userId = payload?._id;
+    req.body.user = user;
     next();
   } catch (error) {
     console.error(error);

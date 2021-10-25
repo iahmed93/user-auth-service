@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npx tsc & node build/app.js",
-    "start:watch": "npx nodemon --watch \"*.ts\" --exec \"ts-node\" ./src/app.ts",
+    "start:dev": "npx nodemon --watch \"*.ts\" --exec \"ts-node\" ./src/app.ts",
     "eslint:fix": "eslint --fix",
     "test": "jest"
   },

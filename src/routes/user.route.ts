@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { HttpError } from "../interfaces/http-error";
-import { IUser } from "../models/user.model";
-import { signIn, signUp } from "../services/user.service";
+import { IUser } from "../interfaces/user";
+import { signIn, signUp, validateUser } from "../services/user.service";
 import { generateHttpResponse } from "../utils/utils";
 
-const userRouter = Router();
+export const userRouter = Router();
 
-userRouter.put("/signup", async (req, res) => {
+userRouter.post("/signup", async (req, res) => {
   try {
     const newUser: IUser = {
       email: req.body.email,
@@ -14,10 +14,10 @@ userRouter.put("/signup", async (req, res) => {
       role: req.body.role,
       tokens: [],
     };
-    await signUp(newUser);
+    const savedUser = await signUp(newUser);
     return res
       .status(200)
-      .json(generateHttpResponse(200, "Successful Sign up"));
+      .json(generateHttpResponse(200, "Successful Sign up", savedUser));
   } catch (error: HttpError | any) {
     console.error("/signup ERROR", { error });
     if (error instanceof HttpError) {
@@ -31,7 +31,7 @@ userRouter.put("/signup", async (req, res) => {
   }
 });
 
-userRouter.post("/signin", async (req, res) => {
+userRouter.patch("/signin", async (req, res) => {
   try {
     const token = await signIn(req.body.email, req.body.password);
     return res
@@ -50,4 +50,30 @@ userRouter.post("/signin", async (req, res) => {
   }
 });
 
-export { userRouter };
+userRouter.post("/validate", async (req, res) => {
+  try {
+    if (!req.body.authToken) {
+      return res
+        .status(401)
+        .json(generateHttpResponse(401, "Missing 'authToken'"));
+    }
+    if (!req.body.permission) {
+      return res
+        .status(401)
+        .json(generateHttpResponse(401, "Missing 'permission'"));
+    }
+    const user = await validateUser(req.body.authToken, req.body.permission);
+    return res
+      .status(200)
+      .json(generateHttpResponse(200, "Authorized", { user }));
+  } catch (error) {
+    if (error instanceof HttpError) {
+      return res
+        .status(error.code)
+        .json(generateHttpResponse(error.code, error.msg, error));
+    }
+    return res
+      .status(500)
+      .json(generateHttpResponse(500, "Unkown Error", error));
+  }
+});

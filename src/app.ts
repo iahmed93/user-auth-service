@@ -5,6 +5,9 @@ import morgan from "morgan";
 
 import { userRouter } from "./routes/user.route";
 import { auth } from "./middlewares/auth";
+import { taskRouter } from "./routes/task.route";
+import { roleRouter } from "./routes/role.route";
+import { permissionRouter } from "./routes/permission.route";
 
 config();
 
@@ -14,8 +17,11 @@ const app = express();
 
 app.use(express.json());
 app.use(morgan("combined"));
+
 app.use("/api/user", userRouter);
-app.use(auth);
+app.use("/api/task", taskRouter);
+app.use("/api/role", roleRouter);
+app.use("/api/permission", permissionRouter);
 
 const url = process.env.DB_URL as string;
 const connectionOptions: ConnectOptions = {};
