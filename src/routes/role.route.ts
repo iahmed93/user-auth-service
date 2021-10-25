@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { HttpError } from "../interfaces/http-error";
+import { CustomeError } from "../interfaces/http-error";
 import { IRole } from "../interfaces/role";
 import { addRole, getRoles, updateRole } from "../services/role.service";
 import { generateHttpResponse } from "../utils/utils";
@@ -25,7 +25,7 @@ roleRouter.post("/", async (req, res) => {
       .status(200)
       .json(generateHttpResponse(200, "Success role save", savedRole));
   } catch (error) {
-    if (error instanceof HttpError) {
+    if (error instanceof CustomeError) {
       return res
         .status(error.code)
         .json(generateHttpResponse(error.code, error.msg, error));
@@ -50,7 +50,7 @@ roleRouter.patch("/", async (req, res) => {
       .status(200)
       .json(generateHttpResponse(200, "Success role update", savedRole));
   } catch (error) {
-    if (error instanceof HttpError) {
+    if (error instanceof CustomeError) {
       return res
         .status(error.code)
         .json(generateHttpResponse(error.code, error.msg, error));
@@ -67,7 +67,7 @@ roleRouter.get("/", async (req, res) => {
     return res.status(200).json(generateHttpResponse(200, "Success", roles));
   } catch (error) {
     console.error(error);
-    if (error instanceof HttpError) {
+    if (error instanceof CustomeError) {
       return res
         .status(error.code)
         .json(generateHttpResponse(error.code, error.msg, error));

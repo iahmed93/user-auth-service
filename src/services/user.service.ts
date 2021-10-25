@@ -1,7 +1,8 @@
-import { HttpError } from "../interfaces/http-error";
+import { CustomeError } from "../interfaces/http-error";
 import { IUser } from "../interfaces/user";
 import { UserModel } from "../models/user.model";
 import { compareHash, hashedText, validateEmail } from "../utils/utils";
+import { getRoleByName } from "./role.service";
 import {
   generateToken,
   validateTokenAndGetUser,
@@ -11,19 +12,19 @@ import {
 export const signUp = async (user: IUser): Promise<IUser> => {
   // Email and Password are required check
   if (!user.password) {
-    throw new HttpError(400, "Password is required");
+    throw new CustomeError(400, "Password is required");
   }
   if (!user.email) {
-    throw new HttpError(400, "Email is required");
+    throw new CustomeError(400, "Email is required");
   }
   // validate email format
   if (!validateEmail(user.email)) {
-    throw new HttpError(400, "Invalid email format");
+    throw new CustomeError(400, "Invalid email format");
   }
   // check if user already exist
   const oldUser = await UserModel.findOne({ email: user.email });
   if (oldUser) {
-    throw new HttpError(400, "Email already exist");
+    throw new CustomeError(400, "Email already exist");
   }
   // hash password
   user.password = hashedText(user.password, 10);
@@ -33,7 +34,7 @@ export const signUp = async (user: IUser): Promise<IUser> => {
     return await doc.save();
   } catch (error) {
     console.log(error);
-    throw new HttpError(500, "Failed to save to DB");
+    throw new CustomeError(500, "Failed to save to DB");
   }
 };
 
@@ -43,19 +44,19 @@ export const signIn = async (
 ): Promise<string> => {
   // Email and Password are required check
   if (!password) {
-    throw new HttpError(400, "Password is required");
+    throw new CustomeError(400, "Password is required");
   }
   if (!email) {
-    throw new HttpError(400, "Email is required");
+    throw new CustomeError(400, "Email is required");
   }
   // get user by email
   const user = await UserModel.findOne({ email });
   if (!user) {
-    throw new HttpError(401, "Invalid Email or Password");
+    throw new CustomeError(401, "Invalid Email or Password");
   }
   // validate password
   if (!compareHash(password, user.password)) {
-    throw new HttpError(401, "Invalid Email or Password");
+    throw new CustomeError(401, "Invalid Email or Password");
   }
   // generate token
   const token = generateToken(user);
@@ -75,6 +76,21 @@ export const signIn = async (
 export const validateUser = async (
   token: string,
   permission: string
-): Promise<IUser> => {
-  return await validateTokenAndGetUser(token);
+): Promise<IUser | null> => {
+  const user = await validateTokenAndGetUser(token);
+  console.log(user);
+  const hasPermission = await hasValidPermission(user, permission);
+  console.log(hasPermission);
+  return hasPermission ? user : null;
+};
+
+export const hasValidPermission = async (
+  user: IUser,
+  permission: string
+): Promise<boolean> => {
+  const role = await getRoleByName(user.role);
+  if (role && role.permissions.indexOf(permission) > -1) {
+    return true;
+  }
+  return false;
 };

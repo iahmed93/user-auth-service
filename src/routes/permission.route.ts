@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { HttpError } from "../interfaces/http-error";
+import { CustomeError } from "../interfaces/http-error";
 import { IPermission } from "../interfaces/permission";
 import { addPermission } from "../services/permission.service";
 import { getRoles } from "../services/role.service";
@@ -26,7 +26,7 @@ permissionRouter.post("/", async (req, res) => {
       );
   } catch (error) {
     console.error(error);
-    if (error instanceof HttpError) {
+    if (error instanceof CustomeError) {
       return res
         .status(error.code)
         .json(generateHttpResponse(error.code, error.msg, error));
@@ -36,7 +36,3 @@ permissionRouter.post("/", async (req, res) => {
       .json(generateHttpResponse(500, "Unkown Error", error));
   }
 });
-
-permissionRouter.patch("/", async (req, res) => {});
-
-permissionRouter.get("/", async (req, res) => {});

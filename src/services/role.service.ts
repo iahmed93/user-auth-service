@@ -1,12 +1,13 @@
-import { HttpError } from "../interfaces/http-error";
+import { CustomeError } from "../interfaces/http-error";
 import { IRole } from "../interfaces/role";
+import { IUser } from "../interfaces/user";
 import { RoleModel } from "../models/role.model";
 
 export const addRole = async (role: IRole): Promise<IRole> => {
   // check if role's permissions are valid
   const permissions = await RoleModel.find({ name: { $in: role.permissions } });
   if (permissions.length === role.permissions.length) {
-    throw new HttpError(401, "Please use valid permissions");
+    throw new CustomeError(401, "Please use valid permissions");
   }
   // save
   try {
@@ -14,7 +15,7 @@ export const addRole = async (role: IRole): Promise<IRole> => {
     return await doc.save();
   } catch (error) {
     console.log(error);
-    throw new HttpError(500, "Failed to save to DB");
+    throw new CustomeError(500, "Failed to save to DB");
   }
 };
 
@@ -25,7 +26,7 @@ export const getRoles = async (): Promise<IRole[]> => {
 export const updateRole = async (id: string, role: IRole): Promise<IRole> => {
   const oldRole = await RoleModel.findById(id);
   if (!oldRole) {
-    throw new HttpError(400, "Role is not found");
+    throw new CustomeError(400, "Role is not found");
   }
   let newPermissions: string[] = [];
   if (role.permissions && role.permissions.length > 0) {
@@ -37,7 +38,7 @@ export const updateRole = async (id: string, role: IRole): Promise<IRole> => {
         name: { $in: role.permissions },
       });
       if (permissions.length === newPermissions.length) {
-        throw new HttpError(401, "Please use valid permissions");
+        throw new CustomeError(401, "Please use valid permissions");
       }
       oldRole.permissions.push(...newPermissions);
     }
@@ -47,4 +48,10 @@ export const updateRole = async (id: string, role: IRole): Promise<IRole> => {
   }
   const savedRole = await oldRole.save();
   return savedRole;
+};
+
+export const getRoleByName = async (name: string): Promise<IRole | null> => {
+  const role = await RoleModel.findOne({ name });
+  console.log({ role });
+  return role ? role : null;
 };

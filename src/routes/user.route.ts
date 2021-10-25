@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { HttpError } from "../interfaces/http-error";
+import { CustomeError } from "../interfaces/http-error";
 import { IUser } from "../interfaces/user";
 import { signIn, signUp, validateUser } from "../services/user.service";
 import { generateHttpResponse } from "../utils/utils";
@@ -18,9 +18,9 @@ userRouter.post("/signup", async (req, res) => {
     return res
       .status(200)
       .json(generateHttpResponse(200, "Successful Sign up", savedUser));
-  } catch (error: HttpError | any) {
+  } catch (error: CustomeError | any) {
     console.error("/signup ERROR", { error });
-    if (error instanceof HttpError) {
+    if (error instanceof CustomeError) {
       return res
         .status(error.code)
         .json(generateHttpResponse(error.code, error.msg, error));
@@ -37,9 +37,9 @@ userRouter.patch("/signin", async (req, res) => {
     return res
       .status(200)
       .json(generateHttpResponse(200, "Successful Sign in", { token }));
-  } catch (error: HttpError | any) {
+  } catch (error: CustomeError | any) {
     console.error("/signin ERROR", { error });
-    if (error instanceof HttpError) {
+    if (error instanceof CustomeError) {
       return res
         .status(error.code)
         .json(generateHttpResponse(error.code, error.msg, error));
@@ -63,11 +63,11 @@ userRouter.post("/validate", async (req, res) => {
         .json(generateHttpResponse(401, "Missing 'permission'"));
     }
     const user = await validateUser(req.body.authToken, req.body.permission);
-    return res
-      .status(200)
-      .json(generateHttpResponse(200, "Authorized", { user }));
+    return user
+      ? res.status(200).json(generateHttpResponse(200, "Authorized", user))
+      : res.status(200).json(generateHttpResponse(401, "Unauthorized"));
   } catch (error) {
-    if (error instanceof HttpError) {
+    if (error instanceof CustomeError) {
       return res
         .status(error.code)
         .json(generateHttpResponse(error.code, error.msg, error));

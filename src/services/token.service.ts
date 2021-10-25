@@ -1,5 +1,5 @@
 import { JsonWebTokenError, sign, verify } from "jsonwebtoken";
-import { HttpError } from "../interfaces/http-error";
+import { CustomeError } from "../interfaces/http-error";
 import { IUser } from "../interfaces/user";
 import { UserModel } from "../models/user.model";
 
@@ -29,15 +29,15 @@ export const validateTokenAndGetUser = async (
     payload = JSON.parse(verifyToken(token));
   } catch (error: JsonWebTokenError | any) {
     if (error.name === "TokenExpiredError") {
-      throw new HttpError(401, "TokenExpiredError", error);
+      throw new CustomeError(401, "TokenExpiredError", error);
     }
   }
   const user = await UserModel.findById(payload!._id);
   if (!user || user.email !== payload!.email) {
-    throw new HttpError(401, "User not found");
+    throw new CustomeError(401, "User not found");
   }
   if (user.tokens.indexOf(token) === -1) {
-    throw new HttpError(401, "Invalid Token");
+    throw new CustomeError(401, "Invalid Token");
   }
   return user;
 };
