@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { CustomeError } from "../interfaces/http-error";
+import { CustomeError } from "../interfaces/custome-error";
 import { IRole } from "../interfaces/role";
 import { addRole, getRoles, updateRole } from "../services/role.service";
 import { generateHttpResponse } from "../utils/utils";

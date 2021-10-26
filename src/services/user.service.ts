@@ -1,4 +1,4 @@
-import { CustomeError } from "../interfaces/http-error";
+import { CustomeError } from "../interfaces/custome-error";
 import { IUser } from "../interfaces/user";
 import { UserModel } from "../models/user.model";
 import { compareHash, hashedText, validateEmail } from "../utils/utils";
@@ -78,9 +78,7 @@ export const validateUser = async (
   permission: string
 ): Promise<IUser | null> => {
   const user = await validateTokenAndGetUser(token);
-  console.log(user);
   const hasPermission = await hasValidPermission(user, permission);
-  console.log(hasPermission);
   return hasPermission ? user : null;
 };
 

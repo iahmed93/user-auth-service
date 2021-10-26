@@ -1,5 +1,5 @@
 import { JsonWebTokenError, sign, verify } from "jsonwebtoken";
-import { CustomeError } from "../interfaces/http-error";
+import { CustomeError } from "../interfaces/custome-error";
 import { IUser } from "../interfaces/user";
 import { UserModel } from "../models/user.model";
 
@@ -29,6 +29,12 @@ export const validateTokenAndGetUser = async (
     payload = JSON.parse(verifyToken(token));
   } catch (error: JsonWebTokenError | any) {
     if (error.name === "TokenExpiredError") {
+      const user = await UserModel.findById(payload!._id);
+      if (user) {
+        const tokens = user?.tokens.filter((t) => t !== token);
+        user.tokens = tokens;
+        await user.save();
+      }
       throw new CustomeError(401, "TokenExpiredError", error);
     }
   }

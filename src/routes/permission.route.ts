@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { CustomeError } from "../interfaces/http-error";
+import { CustomeError } from "../interfaces/custome-error";
 import { IPermission } from "../interfaces/permission";
-import { addPermission } from "../services/permission.service";
+import { addPermission, getPermissions } from "../services/permission.service";
 import { getRoles } from "../services/role.service";
 import { generateHttpResponse } from "../utils/utils";
 
@@ -24,6 +24,25 @@ permissionRouter.post("/", async (req, res) => {
           savedPermission
         )
       );
+  } catch (error) {
+    console.error(error);
+    if (error instanceof CustomeError) {
+      return res
+        .status(error.code)
+        .json(generateHttpResponse(error.code, error.msg, error));
+    }
+    return res
+      .status(500)
+      .json(generateHttpResponse(500, "Unkown Error", error));
+  }
+});
+
+permissionRouter.get("/", async (req, res) => {
+  try {
+    const permissions = await getPermissions();
+    return res
+      .status(200)
+      .json(generateHttpResponse(200, "success", permissions));
   } catch (error) {
     console.error(error);
     if (error instanceof CustomeError) {

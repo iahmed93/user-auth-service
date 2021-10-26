@@ -1,4 +1,4 @@
-import { CustomeError } from "../interfaces/http-error";
+import { CustomeError } from "../interfaces/custome-error";
 import { IPermission } from "../interfaces/permission";
 import { PermissionModel } from "../models/permission.model";
 
@@ -10,4 +10,8 @@ export const addPermission = async (permission: IPermission) => {
     console.error(error);
     throw new CustomeError(400, "Permission already exist");
   }
+};
+
+export const getPermissions = async () => {
+  return await PermissionModel.find();
 };

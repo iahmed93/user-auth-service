@@ -1,12 +1,14 @@
-import { CustomeError } from "../interfaces/http-error";
+import { CustomeError } from "../interfaces/custome-error";
 import { IRole } from "../interfaces/role";
-import { IUser } from "../interfaces/user";
+import { PermissionModel } from "../models/permission.model";
 import { RoleModel } from "../models/role.model";
 
 export const addRole = async (role: IRole): Promise<IRole> => {
   // check if role's permissions are valid
-  const permissions = await RoleModel.find({ name: { $in: role.permissions } });
-  if (permissions.length === role.permissions.length) {
+  const permissions = await PermissionModel.find({
+    name: { $in: role.permissions },
+  });
+  if (permissions.length !== role.permissions.length) {
     throw new CustomeError(401, "Please use valid permissions");
   }
   // save
@@ -33,11 +35,11 @@ export const updateRole = async (id: string, role: IRole): Promise<IRole> => {
     newPermissions = role.permissions.filter(
       (perm) => oldRole.permissions.indexOf(perm) === -1
     );
-    if (newPermissions && newPermissions.length) {
-      const permissions = await RoleModel.find({
-        name: { $in: role.permissions },
+    if (newPermissions && newPermissions.length > 0) {
+      const permissions = await PermissionModel.find({
+        name: { $in: newPermissions },
       });
-      if (permissions.length === newPermissions.length) {
+      if (permissions.length !== newPermissions.length) {
         throw new CustomeError(401, "Please use valid permissions");
       }
       oldRole.permissions.push(...newPermissions);

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { CustomeError } from "../interfaces/http-error";
+import { CustomeError } from "../interfaces/custome-error";
 import { IUser } from "../interfaces/user";
 import { signIn, signUp, validateUser } from "../services/user.service";
 import { generateHttpResponse } from "../utils/utils";
