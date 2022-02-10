@@ -87,5 +87,6 @@ export const hasValidPermission = async (
   permission: string
 ): Promise<boolean> => {
   const role = await getRoleByName(user.role);
+  console.log(role);
   return role && role.permissions.indexOf(permission) > -1 ? true : false;
 };
